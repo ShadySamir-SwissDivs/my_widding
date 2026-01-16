@@ -32,6 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^3.3.2
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -40,6 +41,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
 
@@ -53,8 +55,14 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/lottie/rings.json
-    - assets/lottie/down.json
-    - assets/lottie/hearts_down.json
-    - assets/lottie/wedding.png
+    - assets/lottie/
     - assets/ring.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  web:
+    generate: true
+  image_path: "assets/ring.png"
+  adaptive_icon_background: "#BC9293"
+  adaptive_icon_foreground: "assets/ring.png"

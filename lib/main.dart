@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
   runApp(const WeddingInvitationApp());
@@ -33,9 +35,17 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
 
+  // Query parameters
+  String? guestName;
+  String invitationCode = '';
+
   @override
   void initState() {
     super.initState();
+
+    // Read query parameters from URL
+    _readQueryParameters();
+
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -53,13 +63,33 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const WeddingCardScreen()),
+          MaterialPageRoute(
+            builder: (_) => WeddingCardScreen(
+              guestName: guestName,
+              invitationCode: invitationCode,
+            ),
+          ),
         );
       }
     });
+  }
+
+  void _readQueryParameters() {
+    if (kIsWeb) {
+      final uri = Uri.base;
+      setState(() {
+        guestName = uri.queryParameters['name'];
+        invitationCode = uri.queryParameters['code'] ?? '';
+      });
+
+      // Print for debugging
+      print('Guest Name: $guestName');
+      print('Invitation Code: $invitationCode');
+      print('All params: ${uri.queryParameters}');
+    }
   }
 
   @override
@@ -82,20 +112,20 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 Container(
                   width: 200,
-                  height: 200,
+                  // height: 200,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
                     ],
                   ),
                   padding: const EdgeInsets.all(30),
-                  child: Image.asset('assets/ring.png', fit: BoxFit.contain),
+                  child: Lottie.asset('assets/lottie/rings.json'),
                 ),
                 const SizedBox(height: 30),
                 const Text(
@@ -109,6 +139,17 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 10),
                 const Text('💕', style: TextStyle(fontSize: 40)),
+                if (guestName != null) ...[
+                  const SizedBox(height: 20),
+                  Text(
+                    'Welcome, $guestName!',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -119,7 +160,14 @@ class _SplashScreenState extends State<SplashScreen>
 }
 
 class WeddingCardScreen extends StatefulWidget {
-  const WeddingCardScreen({super.key});
+  final String? guestName;
+  final String invitationCode;
+
+  const WeddingCardScreen({
+    super.key,
+    this.guestName,
+    this.invitationCode = '',
+  });
 
   @override
   State<WeddingCardScreen> createState() => _WeddingCardScreenState();
@@ -130,6 +178,17 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
 
   double widthCard = 326;
   double heightCard = 460;
+
+  bool isArabic = true; // Language toggle
+
+  Future<void> _openLocation() async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/place/26°53\'53.6"N+31°22\'20.7"E/@26.8958053,31.3727592,16.82z/data=!4m4!3m3!8m2!3d26.898207!4d31.372412?entry=ttu&g_ep=EgoyMDI2MDExMy4wIKXMDSoASAFQAw%3D%3D',
+    );
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   @override
   void initState() {
@@ -178,6 +237,49 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
+            /// Language toggle button
+            Positioned(
+              top: 50,
+              right: 20,
+              child: Material(
+                color: Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      isArabic = !isArabic;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.language,
+                          color: Color(0xff744a4b),
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          isArabic ? 'EN' : 'AR',
+                          style: TextStyle(
+                            color: Color(0xff744a4b),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             /// Romantic hearts before opening
             Center(
               child: Stack(
@@ -197,7 +299,11 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
                               color: const Color(0xffFFF1F5),
                               borderRadius: BorderRadius.circular(18),
                               image: DecorationImage(
-                                image: AssetImage('assets/lottie/wedding.png'),
+                                image: AssetImage(
+                                  isArabic
+                                      ? 'assets/lottie/wedding.png'
+                                      : 'assets/lottie/wedding_en.png',
+                                ),
                               ),
                             ),
                           ),
@@ -231,10 +337,36 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
                                 child: AnimatedScale(
                                   duration: const Duration(milliseconds: 600),
                                   scale: dragValue < 0.8 ? 1 : 0.7,
-                                  child: Lottie.asset(
-                                    'assets/lottie/down.json',
-                                    width: 140,
-                                    repeat: false,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${isArabic ? 'إلى صديقي' : 'To My Friend'} ${widget.guestName ?? ''}',
+                                            style: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color.fromARGB(
+                                                255,
+                                                255,
+                                                226,
+                                                227,
+                                              ),
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+
+                                          Lottie.asset(
+                                            'assets/lottie/down.json',
+                                            width: 140,
+                                            repeat: false,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -273,10 +405,27 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
               right: 0,
               child: Text(
                 dragValue < 0.5
-                    ? "اسحب لأسفل لفتح الدعوة 💕"
-                    : "اسحب لأعلى للإغلاق",
+                    ? (isArabic
+                          ? "اسحب لأسفل لفتح الدعوة 💕"
+                          : "Swipe down to open invitation 💕")
+                    : (isArabic ? "اسحب لأعلى للإغلاق" : "Swipe up to close"),
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70),
+              ),
+            ),
+
+            /// Location button
+            Positioned(
+              bottom: 60,
+              right: 20,
+              child: FloatingActionButton(
+                onPressed: _openLocation,
+                backgroundColor: Colors.white,
+                child: const Icon(
+                  Icons.location_on,
+                  color: Color(0xffBC9293),
+                  size: 30,
+                ),
               ),
             ),
           ],
