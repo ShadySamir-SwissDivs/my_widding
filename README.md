@@ -1,6 +1,6 @@
 # my_widding
 
-A new Flutter project.
+Shady's Wedding invitation.
 
 ## Getting Started
 
