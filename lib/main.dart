@@ -237,49 +237,7 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            /// Language toggle button
-            Positioned(
-              top: 50,
-              right: 20,
-              child: Material(
-                color: Colors.white.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      isArabic = !isArabic;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.language,
-                          color: Color(0xff744a4b),
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          isArabic ? 'EN' : 'AR',
-                          style: TextStyle(
-                            color: Color(0xff744a4b),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
+          
             /// Romantic hearts before opening
             Center(
               child: Stack(
@@ -357,6 +315,9 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
                                               ),
                                             ),
                                             textAlign: TextAlign.center,
+                                            textDirection: isArabic
+                                                ? TextDirection.rtl
+                                                : TextDirection.ltr,
                                           ),
 
                                           Lottie.asset(
@@ -428,6 +389,50 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
                 ),
               ),
             ),
+
+            /// Language toggle button
+            Positioned(
+              top: 50,
+              right: 20,
+              child: Material(
+                color: Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      isArabic = !isArabic;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.language,
+                          color: Color(0xff744a4b),
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          isArabic ? 'EN' : 'AR',
+                          style: TextStyle(
+                            color: Color(0xff744a4b),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
           ],
         ),
       ),
