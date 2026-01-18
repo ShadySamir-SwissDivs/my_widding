@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   // Query parameters
   String? guestName;
-  String invitationCode = '';
+  String invitationCode = 'ar';
 
   @override
   void initState() {
@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
       final uri = Uri.base;
       setState(() {
         guestName = uri.queryParameters['name'];
-        invitationCode = uri.queryParameters['code'] ?? '';
+        invitationCode = uri.queryParameters['lang'] ?? 'ar';
       });
 
       // Print for debugging
@@ -166,7 +166,7 @@ class WeddingCardScreen extends StatefulWidget {
   const WeddingCardScreen({
     super.key,
     this.guestName,
-    this.invitationCode = '',
+    this.invitationCode = 'ar',
   });
 
   @override
@@ -193,6 +193,7 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
   @override
   void initState() {
     super.initState();
+    isArabic = widget.invitationCode == 'ar';
     Future.microtask(() {
       var width = MediaQuery.of(context).size.width - 64;
       var height = MediaQuery.of(context).size.height - 200;
@@ -237,7 +238,6 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-          
             /// Romantic hearts before opening
             Center(
               child: Stack(
@@ -381,7 +381,7 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
               right: 20,
               child: FloatingActionButton(
                 onPressed: _openLocation,
-                backgroundColor: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.75),
                 child: const Icon(
                   Icons.location_on,
                   color: Color(0xffBC9293),
@@ -395,7 +395,7 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
               top: 50,
               right: 20,
               child: Material(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: Colors.white.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20),
                 child: InkWell(
                   onTap: () {
@@ -419,7 +419,7 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          isArabic ? 'EN' : 'AR',
+                          !isArabic ? 'EN' : 'AR',
                           style: TextStyle(
                             color: Color(0xff744a4b),
                             fontWeight: FontWeight.bold,
@@ -432,7 +432,6 @@ class _WeddingCardScreenState extends State<WeddingCardScreen> {
                 ),
               ),
             ),
-
           ],
         ),
       ),
